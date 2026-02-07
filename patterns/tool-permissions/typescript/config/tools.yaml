@@ -1,0 +1,120 @@
+# Tool Permission Configuration
+# Defines risk levels and rules for agent tools
+
+tools:
+  file_read:
+    default_risk: LOW
+    rules:
+      - pattern: "/etc/*"
+        risk: MEDIUM
+        confirm: true
+      - pattern: "**/.env*"
+        risk: HIGH
+        allowed: false
+      - pattern: "**/secrets/*"
+        risk: CRITICAL
+        allowed: false
+      - pattern: "**/*"
+        risk: LOW
+
+  file_write:
+    default_risk: MEDIUM
+    rules:
+      - pattern: "/etc/*"
+        risk: CRITICAL
+        allowed: false
+      - pattern: "/tmp/*"
+        risk: LOW
+      - pattern: "**/node_modules/*"
+        risk: LOW
+      - pattern: "**/.git/*"
+        risk: HIGH
+        confirm: true
+      - pattern: "**/*"
+        risk: MEDIUM
+        confirm: true
+
+  bash:
+    default_risk: HIGH
+    rules:
+      # Safe read-only commands
+      - pattern: "ls *"
+        risk: LOW
+      - pattern: "cat *"
+        risk: LOW
+      - pattern: "grep *"
+        risk: LOW
+      - pattern: "find *"
+        risk: LOW
+      - pattern: "pwd"
+        risk: LOW
+      - pattern: "echo *"
+        risk: LOW
+
+      # Development commands
+      - pattern: "npm *"
+        risk: MEDIUM
+        confirm: true
+      - pattern: "pip *"
+        risk: MEDIUM
+        confirm: true
+      - pattern: "git status*"
+        risk: LOW
+      - pattern: "git diff*"
+        risk: LOW
+      - pattern: "git log*"
+        risk: LOW
+      - pattern: "git *"
+        risk: MEDIUM
+        confirm: true
+
+      # Dangerous commands - always blocked
+      - pattern: "rm -rf *"
+        risk: CRITICAL
+        allowed: false
+      - pattern: "rm -r *"
+        risk: HIGH
+        confirm: true
+      - pattern: "sudo *"
+        risk: CRITICAL
+        allowed: false
+      - pattern: "chmod 777*"
+        risk: HIGH
+        allowed: false
+      - pattern: "curl * | *sh*"
+        risk: CRITICAL
+        allowed: false
+
+  web_fetch:
+    default_risk: LOW
+    rules:
+      - pattern: "http://localhost*"
+        risk: LOW
+      - pattern: "http://127.0.0.1*"
+        risk: LOW
+      - pattern: "https://*"
+        risk: LOW
+      - pattern: "http://*"
+        risk: MEDIUM
+        confirm: true
+
+  database:
+    default_risk: HIGH
+    rules:
+      - pattern: "SELECT *"
+        risk: LOW
+      - pattern: "INSERT *"
+        risk: MEDIUM
+        confirm: true
+      - pattern: "UPDATE *"
+        risk: HIGH
+        confirm: true
+      - pattern: "DELETE *"
+        risk: HIGH
+        confirm: true
+      - pattern: "DROP *"
+        risk: CRITICAL
+        allowed: false
+      - pattern: "TRUNCATE *"
+        risk: CRITICAL
+        allowed: false
