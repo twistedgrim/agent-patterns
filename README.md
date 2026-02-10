@@ -105,6 +105,29 @@ await client.session.prompt({
 file operations, and provider flexibility. Build your own for simpler use
 cases or when you need fine-grained control.
 
+### [Agent Trust Layer](./patterns/agent-trust-layer/)
+
+Cryptographic identity, scoped grants, and provenance verification for
+agents acting on behalf of users.
+
+```python
+# Issue a time-bound, revocable grant
+grant = store.issue(
+    agent_id="code-assistant-01",
+    scope="file:write:/workspace/*",
+    ttl_seconds=3600,  # Expires in 1 hour
+    issuer="admin"
+)
+
+# Verify before action
+if store.check(agent_id, "file:write:/workspace/main.py"):
+    audit_log.record(agent_id, action, resource, signature)
+```
+
+**Key insight**: Agents need their own identity, not inherited user
+credentials. Time-bound grants limit blast radius. Provenance verification
+catches supply chain attacks on skills and tools.
+
 ## Directory Structure
 
 ```text
@@ -127,21 +150,20 @@ agent-patterns/
 │   │   └── ...
 │   ├── tool-permissions/
 │   │   └── ...
-│   └── agent-framework-integration/
+│   ├── agent-framework-integration/
+│   │   └── ...
+│   └── agent-trust-layer/
 │       ├── README.md
 │       ├── python/
-│       │   ├── cli_simple.py
-│       │   ├── sdk_simple.py
-│       │   ├── sdk_session.py
-│       │   ├── sdk_events.py
-│       │   ├── sdk_file_create.py
-│       │   └── conceptual.py
+│       │   ├── identity.py
+│       │   ├── grants.py
+│       │   ├── provenance.py
+│       │   └── audit.py
 │       └── typescript/
-│           ├── cli-simple.ts
-│           ├── sdk-simple.ts
-│           ├── sdk-session.ts
-│           ├── sdk-events.ts
-│           └── sdk-file-create.ts
+│           ├── identity.ts
+│           ├── grants.ts
+│           ├── provenance.ts
+│           └── audit.ts
 ```
 
 ## Design Philosophy
